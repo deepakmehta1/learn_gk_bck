@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey, String
 from sqlalchemy.orm import relationship
 from src.db.database import Base
+from src.models.book import Book
 
 class Unit(Base):
     __tablename__ = "unit"
@@ -11,7 +12,7 @@ class Unit(Base):
     unit_number = Column(Integer)
     book_id = Column(Integer, ForeignKey("book.id"))
 
-    book = relationship("Book", back_populates="unit")
+    book = relationship("Book", back_populates="units")
     subunits = relationship("SubUnit", back_populates="unit")
 
     def __repr__(self):

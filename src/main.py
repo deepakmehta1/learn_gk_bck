@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from src.db.database import engine, Base
 from contextlib import asynccontextmanager
-
+from src.routes import quiz
 
 
 @asynccontextmanager
@@ -13,6 +13,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+app.include_router(quiz.router, prefix="/quiz", tags=["quiz"])
 
 # Healthcheck API endpoint
 @app.get("/health")

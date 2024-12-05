@@ -11,7 +11,7 @@ class Choice(Base):
     is_correct = Column(Boolean)
     question_id = Column(Integer, ForeignKey("question.id"))
 
-    question = relationship("Question", back_populates="choice")
+    question = relationship("Question", back_populates="choices")
 
     def __repr__(self):
         return f"<Choice(id={self.id}, text_en={self.text_en[:50]})>"
