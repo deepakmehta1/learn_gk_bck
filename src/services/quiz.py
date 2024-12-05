@@ -4,6 +4,7 @@ from sqlalchemy.orm import selectinload
 from src.models.question import Question
 from src.models.choice import Choice
 from fastapi import HTTPException
+from typing import List, Dict, Optional
 
 
 class QuizService:
@@ -12,7 +13,9 @@ class QuizService:
         self.db = db
 
     # Helper method to fetch questions with their associated choices
-    async def _get_questions_with_choices(self, question_filter):
+    async def _get_questions_with_choices(
+        self, question_filter
+    ) -> List[Dict[str, any]]:
         """
         Fetches all questions and their related choices based on a filter.
         Uses `selectinload` to efficiently load choices along with questions.
@@ -40,14 +43,14 @@ class QuizService:
                         "text_en": choice.text_en,
                         "text_hi": choice.text_hi,
                     }
-                    for choice in question.choices  # Use pre-loaded choices
+                    for choice in question.choices
                 ],
             }
             for question in questions
         ]
 
     # Method to get question with choices by question_id
-    async def get_question_with_choices(self, question_id: int):
+    async def get_question_with_choices(self, question_id: int) -> Dict[str, any]:
         """
         Fetches a single question by its ID, along with its associated choices.
         Returns the question and choices in the expected format.
@@ -60,7 +63,7 @@ class QuizService:
         return questions[0]  # Return the first (and only) question
 
     # Method to handle the submission of an answer
-    async def submit_answer(self, question_id: int, choice_id: int):
+    async def submit_answer(self, question_id: int, choice_id: int) -> Dict[str, any]:
         """
         Handles the answer submission by checking if the selected choice is correct.
         Returns a message indicating whether the answer is correct or incorrect.
@@ -84,7 +87,7 @@ class QuizService:
             return {"message": "Incorrect answer. Try again!", "correct": False}
 
     # Method to get questions by subunit_id with choices (without correct answer flag)
-    async def get_questions_by_subunit(self, subunit_id: int):
+    async def get_questions_by_subunit(self, subunit_id: int) -> List[Dict[str, any]]:
         """
         Fetches all questions related to a specific subunit, including their choices.
         The correct answer flag is not included in the choices.
