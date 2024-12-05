@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from src.db.database import Base
 from src.models.unit import Unit
 
+
 class SubUnit(Base):
     __tablename__ = "sub_unit"
 
@@ -16,7 +17,11 @@ class SubUnit(Base):
 
     unit = relationship("Unit", back_populates="subunits")
 
-    questions = relationship("Question", back_populates="subunit", primaryjoin="SubUnit.id == Question.subunit_id")
+    questions = relationship(
+        "Question",
+        back_populates="subunit",
+        primaryjoin="SubUnit.id == Question.subunit_id",
+    )
 
     def __repr__(self):
         return f"<SubUnit(id={self.id}, title_en={self.title_en})>"

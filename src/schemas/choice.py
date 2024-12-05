@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class ChoiceBase(BaseModel):
     text_en: str
     text_hi: str
@@ -7,6 +8,7 @@ class ChoiceBase(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 class Choice(ChoiceBase):
     id: int

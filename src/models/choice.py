@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from src.db.database import Base
 
+
 class Choice(Base):
     __tablename__ = "choice"
 

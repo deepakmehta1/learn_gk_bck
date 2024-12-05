@@ -11,9 +11,11 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
     yield
 
+
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(quiz.router, prefix="/quiz", tags=["quiz"])
+
 
 # Healthcheck API endpoint
 @app.get("/health")
@@ -22,4 +24,3 @@ async def health_check():
         content={"status": "OK", "message": "Service is running."},
         status_code=200,
     )
-

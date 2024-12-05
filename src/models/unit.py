@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from src.db.database import Base
 from src.models.book import Book
 
+
 class Unit(Base):
     __tablename__ = "unit"
 

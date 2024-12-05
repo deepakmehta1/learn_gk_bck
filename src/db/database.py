@@ -13,6 +13,7 @@ engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=True)
 # Session configuration
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
+
 # Dependency to get the session for a request
 async def get_db():
     async with async_session() as session:

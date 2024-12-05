@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, Text, Boolean, ForeignKey
 from src.db.database import Base
 from sqlalchemy.orm import relationship
 
+
 class ReportedQuestion(Base):
     __tablename__ = "reported_question"
 
