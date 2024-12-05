@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "src"
+version = "0.1.0"
+description = "A simple FastAPI app"
+authors = ["Deepak Mehta <arundeepak92@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.13.0"
+fastapi = "^0.115.6"
+fastapi-cli = "^0.0.6"
+uvicorn = "^0.32.1"
+
+[tool.poetry.dev-dependencies]
+# Add any dev dependencies here, e.g., testing libraries
+pytest = "^7.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
