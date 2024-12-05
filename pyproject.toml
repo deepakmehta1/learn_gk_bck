@@ -10,6 +10,7 @@ python = "^3.13.0"
 fastapi = "^0.115.6"
 fastapi-cli = "^0.0.6"
 uvicorn = "^0.32.1"
+black = "^24.10.0"
 
 [tool.poetry.dev-dependencies]
 # Add any dev dependencies here, e.g., testing libraries

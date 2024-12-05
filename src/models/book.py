@@ -9,6 +9,7 @@ class BookBase(BaseModel):
     class Config:
         orm_mode = True
 
+
 class Book(BookBase):
     id: int
 
@@ -36,7 +37,6 @@ class SubUnitBase(BaseModel):
     content_en: str
     content_hi: str
     subunit_number: int
-
 
 
 class SubUnit(SubUnitBase):
@@ -74,6 +74,7 @@ class Choice(ChoiceBase):
 
     class Config:
         orm_mode = True
+
 
 class ReportedQuestionBase(BaseModel):
     explanation_en: str

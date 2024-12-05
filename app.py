@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 # Initialize the FastAPI app
 app = FastAPI()
 
+
 # Healthcheck API endpoint
 @app.get("/health")
 async def health_check():
