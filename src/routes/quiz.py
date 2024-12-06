@@ -1,8 +1,13 @@
 from typing import List
 from fastapi import APIRouter, Depends
 from src.schemas.question import Question as QuestionSchema
-from src.services import QuizService
-from src.dependencies import get_quiz_service
+from src.services import QuizService, UserService
+from src.dependencies import (
+    get_quiz_service,
+    get_user_email_from_token,
+    get_user_service,
+)
+from src.models import User
 
 router = APIRouter()
 
@@ -10,8 +15,12 @@ router = APIRouter()
 # GET Question and Choices without the answer
 @router.get("/question/{question_id}", response_model=QuestionSchema)
 async def get_question_with_options(
-    question_id: int, quiz_service: QuizService = Depends(get_quiz_service)
+    question_id: int,
+    quiz_service: QuizService = Depends(get_quiz_service),
+    user_service: UserService = Depends(get_user_service),
+    user_email: str = Depends(get_user_email_from_token),
 ):
+    user = await user_service.get_user_by_email(user_email)
     return await quiz_service.get_question_with_choices(question_id)
 
 
@@ -21,13 +30,20 @@ async def submit_answer_route(
     question_id: int,
     choice_id: int,
     quiz_service: QuizService = Depends(get_quiz_service),
+    user_service: UserService = Depends(get_user_service),
+    user_email: str = Depends(get_user_email_from_token),
 ):
+    user = await user_service.get_user_by_email(user_email)
     return await quiz_service.submit_answer(question_id, choice_id)
 
 
 # GET API: Get questions by subunit_id
 @router.get("/subunit/{subunit_id}/questions", response_model=List[QuestionSchema])
 async def get_questions_by_subunit(
-    subunit_id: int, quiz_service: QuizService = Depends(get_quiz_service)
+    subunit_id: int,
+    quiz_service: QuizService = Depends(get_quiz_service),
+    user_service: UserService = Depends(get_user_service),
+    user_email: str = Depends(get_user_email_from_token),
 ):
+    user = await user_service.get_user_by_email(user_email)
     return await quiz_service.get_questions_by_subunit(subunit_id)
