@@ -13,8 +13,8 @@ class Unit(Base):
     unit_number = Column(Integer)
     book_id = Column(Integer, ForeignKey("book.id"))
 
-    book = relationship("Book", back_populates="units")
-    subunits = relationship("SubUnit", back_populates="unit")
+    book = relationship("Book", back_populates="units", lazy="selectin")
+    subunits = relationship("SubUnit", back_populates="unit", lazy="selectin")
 
     def __repr__(self):
         return f"<Unit(id={self.id}, title_en={self.title_en})>"

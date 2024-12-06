@@ -15,8 +15,8 @@ class Question(Base):
     reported = Column(Boolean, default=False)
     subunit_id = Column(Integer, ForeignKey("sub_unit.id"))
 
-    subunit = relationship("SubUnit", back_populates="questions")
-    choices = relationship("Choice", back_populates="question")
+    subunit = relationship("SubUnit", back_populates="questions", lazy="selectin")
+    choices = relationship("Choice", back_populates="question", lazy="selectin")
     reported_questions = relationship(
         "ReportedQuestion",
         back_populates="question",

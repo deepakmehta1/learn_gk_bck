@@ -15,7 +15,7 @@ class SubUnit(Base):
     subunit_number = Column(Integer)
     unit_id = Column(Integer, ForeignKey("unit.id"))
 
-    unit = relationship("Unit", back_populates="subunits")
+    unit = relationship("Unit", back_populates="subunits", lazy="selectin")
 
     questions = relationship(
         "Question",

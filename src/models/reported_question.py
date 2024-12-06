@@ -12,7 +12,9 @@ class ReportedQuestion(Base):
     resolved = Column(Boolean, default=False)
     question_id = Column(Integer, ForeignKey("question.id"))
 
-    question = relationship("Question", back_populates="reported_questions")
+    question = relationship(
+        "Question", back_populates="reported_questions", lazy="selectin"
+    )
 
     def __repr__(self):
         return f"<ReportedQuestion(id={self.id}, question_id={self.question_id})>"

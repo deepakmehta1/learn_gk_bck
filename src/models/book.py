@@ -10,7 +10,7 @@ class Book(Base):
     title_en = Column(String, index=True)
     title_hi = Column(String)
 
-    units = relationship("Unit", back_populates="book")
+    units = relationship("Unit", back_populates="book", lazy="selectin")
 
     def __repr__(self):
         return f"<Book(id={self.id}, title_en={self.title_en})>"
