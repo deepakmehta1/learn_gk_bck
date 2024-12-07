@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db.database import get_db
-from src.services import QuizService, UserService
+from src.models import User
+from src.services import QuizService, UserService, UserProgressService
 from firebase_admin import auth
 from src.firebase import firebase_admin
 from typing import Optional
@@ -13,6 +14,12 @@ def get_quiz_service(db: AsyncSession = Depends(get_db)) -> QuizService:
 
 def get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:
     return UserService(db)
+
+
+def get_user_progress_service(
+    db: AsyncSession = Depends(get_db),
+) -> UserProgressService:
+    return UserProgressService(db)
 
 
 def get_user_email_from_token(authorization: Optional[str] = Header(None)) -> str:
@@ -41,3 +48,13 @@ def get_user_email_from_token(authorization: Optional[str] = Header(None)) -> st
     except Exception as e:
         # If verification fails, raise an HTTPException
         raise HTTPException(status_code=401, detail="Invalid token or token expired")
+
+
+async def get_current_user(
+    user_email: str = Depends(get_user_email_from_token),
+    user_service: UserService = Depends(get_user_service),
+) -> User:
+    user = await user_service.get_user_by_email(user_email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
