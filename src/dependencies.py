@@ -2,10 +2,16 @@ from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db.database import get_db
 from src.models import User
-from src.services import QuizService, UserService, UserProgressService
+from src.services import QuizService, UserService, BookService, UserProgressService
+
 from firebase_admin import auth
 from src.firebase import firebase_admin
+
 from typing import Optional
+
+
+def get_book_service(db: AsyncSession = Depends(get_db)) -> BookService:
+    return BookService(db)
 
 
 def get_quiz_service(db: AsyncSession = Depends(get_db)) -> QuizService:

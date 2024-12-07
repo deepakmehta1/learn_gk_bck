@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from src.db.database import engine, Base
 from src.middlewares import LoggingMiddleware
 from contextlib import asynccontextmanager
-from src.routes import quiz
+from src.routes import quiz, book
 
 
 @asynccontextmanager
@@ -18,6 +18,7 @@ app = FastAPI(lifespan=lifespan)
 app.add_middleware(LoggingMiddleware)
 
 app.include_router(quiz.router, prefix="/quiz", tags=["quiz"])
+app.include_router(book.router, prefix="/books", tags=["quiz"])
 
 
 # Healthcheck API endpoint
