@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends
-from src.schemas.question import Question as QuestionSchema
+from src.schemas import Question, SubmitAnswerRequest
 from src.services import QuizService, UserService, UserProgressService
 from src.dependencies import (
     get_quiz_service,
@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 # GET Question and Choices without the answer
-@router.get("/question/{question_id}", response_model=QuestionSchema)
+@router.get("/question/{question_id}", response_model=Question)
 async def get_question_with_options(
     question_id: int,
     quiz_service: QuizService = Depends(get_quiz_service),
@@ -32,7 +32,7 @@ async def get_question_with_options(
         unit_id=question["unit"]["id"],
         sub_unit_id=question["subunit"]["id"],
         question_id=question_id,
-        selected_choice=0,
+        selected_choice=None,
         is_correct=False,
         status="read",
     )
@@ -44,7 +44,7 @@ async def get_question_with_options(
 @router.post("/question/{question_id}/submit")
 async def submit_answer_route(
     question_id: int,
-    choice_id: int,
+    submit_request: SubmitAnswerRequest,
     quiz_service: QuizService = Depends(get_quiz_service),
     current_user: User = Depends(get_current_user),
     user_progress_service: UserProgressService = Depends(get_user_progress_service),
@@ -56,6 +56,7 @@ async def submit_answer_route(
     question = await quiz_service.get_question_with_choices(question_id)
 
     # Submit the answer and check correctness
+    choice_id = submit_request.choice_id
     submitted_response = await quiz_service.submit_answer(question_id, choice_id)
 
     # Update user progress with the selected choice
@@ -73,7 +74,7 @@ async def submit_answer_route(
 
 
 # GET API: Get questions by subunit_id
-@router.get("/subunit/{subunit_id}/questions", response_model=List[QuestionSchema])
+@router.get("/subunit/{subunit_id}/questions", response_model=List[Question])
 async def get_questions_by_subunit(
     subunit_id: int,
     quiz_service: QuizService = Depends(get_quiz_service),

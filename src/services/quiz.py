@@ -1,8 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import selectinload, joinedload
 from fastapi import HTTPException
-from typing import List, Dict, Optional
+from typing import List, Dict
 from src.models.question import Question
 from src.models.choice import Choice
 
@@ -18,60 +17,16 @@ class QuizService:
     ) -> List[Dict[str, any]]:
         """
         Fetches all questions and their related choices, book, unit, and subunit based on a filter.
-        Uses `selectinload` to efficiently load choices, unit, subunit, and book along with questions.
+        The relationships are preloaded via `lazy="selectin"` in the models.
         """
         async with self.db.begin():
-            result = await self.db.execute(
-                select(Question)
-                .filter(question_filter)
-                .options(
-                    selectinload(Question.choices),  # Efficiently load choices
-                    selectinload(Question.subunit),  # Efficiently load subunit
-                    selectinload(
-                        Question.subunit.unit
-                    ),  # Efficiently load unit via subunit
-                    selectinload(
-                        Question.subunit.unit.book
-                    ),  # Efficiently load book via unit
-                )
-            )
+            result = await self.db.execute(select(Question).filter(question_filter))
             questions = result.scalars().all()
 
         if not questions:
             raise HTTPException(status_code=404, detail="No questions found")
 
-        # Formats questions and choices to be returned in the response
-        return [
-            {
-                "id": question.id,
-                "text_en": question.text_en,
-                "text_hi": question.text_hi,
-                "book": {
-                    "id": question.subunit.unit.book.id,
-                    "title_en": question.subunit.unit.book.title_en,
-                    "title_hi": question.subunit.unit.book.title_hi,
-                },
-                "unit": {
-                    "id": question.subunit.unit.id,
-                    "title_en": question.subunit.unit.title_en,
-                    "title_hi": question.subunit.unit.title_hi,
-                },
-                "subunit": {
-                    "id": question.subunit.id,
-                    "title_en": question.subunit.title_en,
-                    "title_hi": question.subunit.title_hi,
-                },
-                "choices": [
-                    {
-                        "id": choice.id,
-                        "text_en": choice.text_en,
-                        "text_hi": choice.text_hi,
-                    }
-                    for choice in question.choices
-                ],
-            }
-            for question in questions
-        ]
+        return questions
 
     # Method to get question with choices by question_id
     async def get_question_with_choices(self, question_id: int) -> Dict[str, any]:
@@ -84,7 +39,35 @@ class QuizService:
         if not questions:
             raise HTTPException(status_code=404, detail="Question not found")
 
-        return questions[0]  # Return the first (and only) question
+        question = questions[0]
+        return {
+            "id": question.id,
+            "text_en": question.text_en,
+            "text_hi": question.text_hi,
+            "book": {
+                "id": question.subunit.unit.book.id,
+                "title_en": question.subunit.unit.book.title_en,
+                "title_hi": question.subunit.unit.book.title_hi,
+            },
+            "unit": {
+                "id": question.subunit.unit.id,
+                "title_en": question.subunit.unit.title_en,
+                "title_hi": question.subunit.unit.title_hi,
+            },
+            "subunit": {
+                "id": question.subunit.id,
+                "title_en": question.subunit.title_en,
+                "title_hi": question.subunit.title_hi,
+            },
+            "choices": [
+                {
+                    "id": choice.id,
+                    "text_en": choice.text_en,
+                    "text_hi": choice.text_hi,
+                }
+                for choice in question.choices
+            ],
+        }
 
     # Method to handle the submission of an answer
     async def submit_answer(self, question_id: int, choice_id: int) -> Dict[str, any]:
@@ -99,13 +82,13 @@ class QuizService:
 
         # Find the selected choice within the pre-loaded choices
         question = questions[0]
-        choice = next((ch for ch in question["choices"] if ch["id"] == choice_id), None)
+        choice = next((ch for ch in question.choices if ch.id == choice_id), None)
 
         if not choice:
             raise HTTPException(status_code=404, detail="Choice not found")
 
         # Check if the submitted choice is correct
-        if choice["is_correct"]:
+        if choice.is_correct:
             return {"message": "Correct answer!", "correct": True}
         else:
             return {"message": "Incorrect answer. Try again!", "correct": False}
@@ -116,4 +99,23 @@ class QuizService:
         Fetches all questions related to a specific subunit, including their choices.
         The correct answer flag is not included in the choices.
         """
-        return await self._get_questions_with_choices(Question.subunit_id == subunit_id)
+        questions = await self._get_questions_with_choices(
+            Question.subunit_id == subunit_id
+        )
+
+        return [
+            {
+                "id": question.id,
+                "text_en": question.text_en,
+                "text_hi": question.text_hi,
+                "choices": [
+                    {
+                        "id": choice.id,
+                        "text_en": choice.text_en,
+                        "text_hi": choice.text_hi,
+                    }
+                    for choice in question.choices
+                ],
+            }
+            for question in questions
+        ]

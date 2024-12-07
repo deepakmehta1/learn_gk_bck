@@ -14,7 +14,7 @@ class UserProgress(Base):
     unit_id = Column(Integer, ForeignKey("unit.id"), nullable=False)
     sub_unit_id = Column(Integer, ForeignKey("sub_unit.id"), nullable=False)
     question_id = Column(Integer, ForeignKey("question.id"), nullable=False)
-    selected_choice = Column(Integer, ForeignKey("choice.id"), nullable=False)
+    selected_choice = Column(Integer, ForeignKey("choice.id"), nullable=True)
     is_correct = Column(Boolean, default=False, nullable=False)
     status = Column(Enum(QuestionStatus), default=QuestionStatus.READ, nullable=False)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
