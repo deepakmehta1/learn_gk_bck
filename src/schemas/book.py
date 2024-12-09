@@ -1,24 +1,29 @@
 from pydantic import BaseModel
 from typing import List
 
+from pydantic import BaseModel
+from typing import List, Optional
+
 
 class SubUnitBase(BaseModel):
     id: int
     title_en: str
     title_hi: str
+    question_count: Optional[int] = 0
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UnitBase(BaseModel):
     id: int
     title_en: str
     title_hi: str
-    subunits: List[SubUnitBase]
+    question_count: Optional[int] = 0
+    subunits: List[SubUnitBase] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class BookBase(BaseModel):
@@ -28,4 +33,4 @@ class BookBase(BaseModel):
     units: List[UnitBase]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
