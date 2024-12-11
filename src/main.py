@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from src.db.database import engine, Base
 from src.middlewares import LoggingMiddleware
 from contextlib import asynccontextmanager
-from src.routes import quiz, book
+from src.routes import quiz, book, user
 
 
 @asynccontextmanager
@@ -15,10 +16,19 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.add_middleware(LoggingMiddleware)
 
 app.include_router(quiz.router, prefix="/quiz", tags=["quiz"])
 app.include_router(book.router, prefix="/books", tags=["quiz"])
+app.include_router(user.router, prefix="/user", tags=["quiz"])
 
 
 # Healthcheck API endpoint

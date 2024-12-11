@@ -78,6 +78,6 @@ async def submit_answer_route(
 async def get_questions_by_subunit(
     subunit_id: int,
     quiz_service: QuizService = Depends(get_quiz_service),
-    current_user: User = Depends(get_current_user),
+    _: User = Depends(get_current_user),
 ):
     return await quiz_service.get_questions_by_subunit(subunit_id)

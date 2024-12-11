@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import func
 from fastapi import HTTPException
 from typing import List, Dict
-from src.models.question import Question
-from src.models.choice import Choice
+from src.models import Question, Book, Unit, SubUnit
 
 
 class QuizService:
@@ -19,9 +19,8 @@ class QuizService:
         Fetches all questions and their related choices, book, unit, and subunit based on a filter.
         The relationships are preloaded via `lazy="selectin"` in the models.
         """
-        async with self.db.begin():
-            result = await self.db.execute(select(Question).filter(question_filter))
-            questions = result.scalars().all()
+        result = await self.db.execute(select(Question).filter(question_filter))
+        questions = result.scalars().all()
 
         if not questions:
             raise HTTPException(status_code=404, detail="No questions found")
@@ -119,3 +118,58 @@ class QuizService:
             }
             for question in questions
         ]
+
+    async def get_total_questions_by_book(self, book: Book) -> List[Question]:
+        """
+        Returns all the questions across all units and subunits for this book.
+        """
+        query = await self.db.execute(
+            select(Question)  # Select Question instances
+            .join(Unit, Unit.book_id == book.id)  # Join with Unit
+            .join(SubUnit, SubUnit.unit_id == Unit.id)  # Join with SubUnit
+            .filter(Question.subunit_id == SubUnit.id)  # Join with Question on Subunit
+        )
+
+        # Extract the list of questions
+        questions = query.scalars().all()
+
+        if not questions:
+            return []  # Return an empty list if no questions found
+
+        return questions
+
+    async def get_questions_by_unit(self, unit: Unit) -> List[Question]:
+        """
+        Fetches all questions associated with a specific unit.
+        """
+        # Query to get questions for the specific unit
+        query = await self.db.execute(
+            select(Question)
+            .join(SubUnit, SubUnit.id == Question.subunit_id)
+            .filter(SubUnit.unit_id == unit.id)  # Filter by unit
+        )
+
+        questions = query.scalars().all()  # Fetch all the questions
+
+        if not questions:
+            return []  # Return an empty list if no questions found
+
+        return questions
+
+    async def get_questions_by_subunit(self, subunit: SubUnit) -> List[Question]:
+        """
+        Fetches all questions associated with a specific subunit.
+        """
+        # Query to get questions for the specific subunit
+        query = await self.db.execute(
+            select(Question).filter(
+                Question.subunit_id == subunit.id
+            )  # Filter by subunit
+        )
+
+        questions = query.scalars().all()  # Fetch all the questions
+
+        if not questions:
+            return []  # Return an empty list if no questions found
+
+        return questions
