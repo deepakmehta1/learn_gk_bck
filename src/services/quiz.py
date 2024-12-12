@@ -69,31 +69,47 @@ class QuizService:
         }
 
     # Method to handle the submission of an answer
+   # Method to handle the submission of an answer
     async def submit_answer(self, question_id: int, choice_id: int) -> Dict[str, any]:
         """
         Handles the answer submission by checking if the selected choice is correct.
-        Returns a message indicating whether the answer is correct or incorrect.
+        Returns a message indicating whether the answer is correct or incorrect,
+        and also includes the correct option id.
         """
+        # Fetch the question with choices
         questions = await self._get_questions_with_choices(Question.id == question_id)
 
         if not questions:
             raise HTTPException(status_code=404, detail="Question not found")
 
-        # Find the selected choice within the pre-loaded choices
+        # Get the question and choices
         question = questions[0]
+        
+        # Find the selected choice
         choice = next((ch for ch in question.choices if ch.id == choice_id), None)
 
         if not choice:
             raise HTTPException(status_code=404, detail="Choice not found")
 
-        # Check if the submitted choice is correct
-        if choice.is_correct:
-            return {"message": "Correct answer!", "correct": True}
-        else:
-            return {"message": "Incorrect answer. Try again!", "correct": False}
+        # Find the correct choice for this question
+        correct_choice = next((ch for ch in question.choices if ch.is_correct), None)
+
+        if not correct_choice:
+            raise HTTPException(status_code=500, detail="No correct answer found for the question")
+
+        # Check if the selected choice is correct
+        is_correct = choice.id == correct_choice.id
+
+        # Return the result with the correct option id
+        return {
+            "message": "Correct answer!" if is_correct else "Incorrect answer. Try again!",
+            "correct": is_correct,
+            "correct_option_id": correct_choice.id  # Add the correct option id to the response
+        }
+
 
     # Method to get questions by subunit_id with choices (without correct answer flag)
-    async def get_questions_by_subunit(self, subunit_id: int) -> List[Dict[str, any]]:
+    async def get_questions_by_subunit_id(self, subunit_id: int) -> List[Dict[str, any]]:
         """
         Fetches all questions related to a specific subunit, including their choices.
         The correct answer flag is not included in the choices.

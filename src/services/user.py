@@ -25,11 +25,10 @@ class UserService:
         - HTTPException: If no user with the provided email exists.
         """
         # Query to fetch the user by email
-        async with self.db.begin():
-            result = await self.db.execute(select(User).filter(User.email == email))
-            user = (
-                result.scalars().first()
-            )  # Get the first result (there should only be one)
+        result = await self.db.execute(select(User).filter(User.email == email))
+        user = (
+            result.scalars().first()
+        )  # Get the first result (there should only be one)
 
         if not user:
             raise HTTPException(

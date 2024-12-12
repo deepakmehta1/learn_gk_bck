@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends
-from src.schemas import Question, SubmitAnswerRequest
-from src.services import QuizService, UserService, UserProgressService
+from src.schemas import Question, SubmitAnswerRequest, SubmitAnswerResponse
+from src.services import QuizService, UserProgressService
 from src.dependencies import (
     get_quiz_service,
     get_current_user,
@@ -41,8 +41,8 @@ async def get_question_with_options(
 
 
 # POST Submit Answer and Check Correctness
-@router.post("/question/{question_id}/submit")
-async def submit_answer_route(
+@router.post("/question/{question_id}/submit", response_model=SubmitAnswerResponse)
+async def submit_answer(
     question_id: int,
     submit_request: SubmitAnswerRequest,
     quiz_service: QuizService = Depends(get_quiz_service),
@@ -80,4 +80,4 @@ async def get_questions_by_subunit(
     quiz_service: QuizService = Depends(get_quiz_service),
     _: User = Depends(get_current_user),
 ):
-    return await quiz_service.get_questions_by_subunit(subunit_id)
+    return await quiz_service.get_questions_by_subunit_id(subunit_id)

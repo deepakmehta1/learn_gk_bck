@@ -35,17 +35,17 @@ class UserProgressService:
         If the user has previously attempted the question, it updates their selected choice and status.
         """
         # Check if a progress entry exists for the user and the specific question
-        async with self.db.begin():
-            result = await self.db.execute(
-                select(UserProgress).filter(
-                    UserProgress.user_id == self.user.id,
-                    UserProgress.book_id == book_id,
-                    UserProgress.unit_id == unit_id,
-                    UserProgress.sub_unit_id == sub_unit_id,
-                    UserProgress.question_id == question_id,
-                )
+        
+        result = await self.db.execute(
+            select(UserProgress).filter(
+                UserProgress.user_id == self.user.id,
+                UserProgress.book_id == book_id,
+                UserProgress.unit_id == unit_id,
+                UserProgress.sub_unit_id == sub_unit_id,
+                UserProgress.question_id == question_id,
             )
-            progress = result.scalars().first()
+        )
+        progress = result.scalars().first()
 
         if progress:
             # If progress exists, update the selected_choice and is_correct
