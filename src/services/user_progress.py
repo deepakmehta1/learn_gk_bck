@@ -35,7 +35,7 @@ class UserProgressService:
         If the user has previously attempted the question, it updates their selected choice and status.
         """
         # Check if a progress entry exists for the user and the specific question
-        
+
         result = await self.db.execute(
             select(UserProgress).filter(
                 UserProgress.user_id == self.user.id,

@@ -6,6 +6,9 @@ from .choice import Choice
 from .reported_question import ReportedQuestion
 from .user import User
 from .user_progress import UserProgress
+from .subscription_type import SubscriptionType
+from .subscription import Subscription
+from .preview_subunit import PreviewSubunit
 
 __all__ = [
     "Book",
@@ -15,4 +18,7 @@ __all__ = [
     "ReportedQuestion",
     "User",
     "UserProgress",
+    "SubscriptionType",
+    "Subscription",
+    "PreviewSubunit",
 ]
