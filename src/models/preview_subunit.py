@@ -11,7 +11,7 @@ class PreviewSubunit(Base):
     subunit_id = Column(Integer, ForeignKey("sub_unit.id"), nullable=False)
     available_for_preview = Column(Boolean, default=True, nullable=False)
 
-    subunit = relationship("SubUnit", back_populates="preview_subunit")
+    subunit = relationship("SubUnit", back_populates="preview")
 
     def __repr__(self):
         return f"<PreviewSubunit(subunit_id={self.subunit_id}, available_for_preview={self.available_for_preview})>"

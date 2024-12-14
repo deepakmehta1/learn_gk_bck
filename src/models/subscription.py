@@ -20,9 +20,9 @@ class Subscription(Base):
     end_date = Column(DateTime, nullable=True)
     active = Column(Boolean, default=True)
 
-    user = relationship("User", back_populates="subscription")
-    book = relationship("Book", back_populates="subscription")
-    subscription_type = relationship("SubscriptionType", back_populates="subscription")
+    user = relationship("User", back_populates="subscriptions")
+    book = relationship("Book", back_populates="subscriptions")
+    subscription_type = relationship("SubscriptionType", back_populates="subscriptions")
 
     def __repr__(self):
         return f"<Subscription(user_id={self.user_id}, book_id={self.book_id}, active={self.active}, subscription_type={self.subscription_type.name})>"

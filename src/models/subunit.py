@@ -16,9 +16,7 @@ class SubUnit(Base):
     unit_id = Column(Integer, ForeignKey("unit.id"))
 
     unit = relationship("Unit", back_populates="subunits", lazy="selectin")
-    preview_subunits = relationship(
-        "PreviewSubunit", back_populates="subunit", uselist=False
-    )
+    preview = relationship("PreviewSubunit", back_populates="subunit", lazy="selectin")
 
     questions = relationship(
         "Question",

@@ -6,6 +6,7 @@ from src.dependencies import (
     get_quiz_service,
     get_current_user,
     get_user_progress_service,
+    check_user_subscription_and_preview,
 )
 from src.models import User
 
@@ -19,6 +20,7 @@ async def get_question_with_options(
     quiz_service: QuizService = Depends(get_quiz_service),
     current_user: User = Depends(get_current_user),
     user_progress_service: UserProgressService = Depends(get_user_progress_service),
+    _: bool = Depends(check_user_subscription_and_preview),
 ):
     # Associate the user with the progress service
     user_progress_service.associate_user(current_user)
@@ -48,6 +50,7 @@ async def submit_answer(
     quiz_service: QuizService = Depends(get_quiz_service),
     current_user: User = Depends(get_current_user),
     user_progress_service: UserProgressService = Depends(get_user_progress_service),
+    _: bool = Depends(check_user_subscription_and_preview),
 ):
     # Associate the user with the progress service
     user_progress_service.associate_user(current_user)
@@ -79,5 +82,6 @@ async def get_questions_by_subunit(
     subunit_id: int,
     quiz_service: QuizService = Depends(get_quiz_service),
     _: User = Depends(get_current_user),
+    has_access: bool = Depends(check_user_subscription_and_preview),
 ):
     return await quiz_service.get_questions_by_subunit_id(subunit_id)

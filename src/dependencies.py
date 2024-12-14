@@ -1,13 +1,24 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import Depends, HTTPException, Header
+from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db.database import get_db
-from src.models import User
-from src.services import QuizService, UserService, BookService, UserProgressService
+from src.models import User, SubUnit, Question
+from src.enums import SubscriptionTypeEnum
+from src.services import (
+    QuizService,
+    UserService,
+    BookService,
+    UserProgressService,
+    SubscriptionService,
+)
 
 from firebase_admin import auth
 from src.firebase import firebase_admin
-
 from typing import Optional
+
+
+def get_subscription_service(db: AsyncSession = Depends(get_db)) -> BookService:
+    return SubscriptionService(db)
 
 
 def get_book_service(db: AsyncSession = Depends(get_db)) -> BookService:
@@ -64,3 +75,72 @@ async def get_current_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+async def check_user_subscription_and_preview(
+    question_id: int = None,
+    subunit_id: int = None,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    subscription_service: SubscriptionService = Depends(get_subscription_service),
+) -> bool:
+    """
+    Check if the current user has a subscription (full or specific book) and if the subunit is previewed.
+    """
+
+    # If subunit_id is provided, directly use it
+    if subunit_id:
+        # Await the execution of the query
+        subunit_result = await db.execute(
+            select(SubUnit).filter(SubUnit.id == subunit_id)
+        )
+        subunit = subunit_result.scalars().first()
+
+    # If question_id is provided, fetch the subunit_id from the Question table
+    elif question_id:
+        # Await the execution of the query
+        question_result = await db.execute(
+            select(Question).filter(Question.id == question_id)
+        )
+        question = question_result.scalars().first()
+
+        if not question:
+            raise HTTPException(status_code=404, detail="Question not found")
+
+        subunit = (
+            question.subunit
+        )  # Get subunit directly from the related `subunit` field
+
+    else:
+        raise HTTPException(
+            status_code=400, detail="Either subunit_id or question_id must be provided"
+        )
+
+    if not subunit:
+        raise HTTPException(status_code=404, detail="Subunit not found")
+
+    # If the subunit is previewed, allow access without subscription
+    if subunit.preview:
+        return True  # Subunit is previewed, no need for subscription check
+
+    # Check if the user has a subscription
+    subscription = await subscription_service.check_user_subscription_for_book(
+        user_id=current_user.id, book_id=subunit.unit.book_id
+    )
+
+    if not subscription:
+        raise HTTPException(status_code=403, detail="No subscription for this content")
+
+    # Check if the user has full or specific subscription to the book
+    if subscription.subscription_type.code == SubscriptionTypeEnum.FULL_SUBSCRIPTION:
+        return True
+
+    if (
+        subscription.subscription_type.code == SubscriptionTypeEnum.BASE_SUBSCRIPTION
+        and subscription.book_id == subunit.unit.book_id
+    ):
+        return True
+
+    raise HTTPException(
+        status_code=403, detail="No valid subscription for this content"
+    )
