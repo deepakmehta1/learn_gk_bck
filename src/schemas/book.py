@@ -10,6 +10,7 @@ class SubUnitBase(BaseModel):
     title_en: str
     title_hi: str
     question_count: Optional[int] = 0
+    is_preview: bool
 
     class Config:
         from_attributes = True
