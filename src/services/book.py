@@ -116,6 +116,7 @@ class BookService:
                 "title_en": subunit.title_en,
                 "title_hi": subunit.title_hi,
                 "question_count": question_count,
+                "is_preview": True if subunit.preview else False,
             }
             for subunit, question_count in subunits
         ]
