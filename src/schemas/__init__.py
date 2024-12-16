@@ -3,6 +3,7 @@ from .question import Question
 from .user_progress import UserProgressBase, RecentQuestionDetails, UserProgressResponse
 from .requests import SubmitAnswerRequest
 from .responses import SubmitAnswerResponse
+from .error_responses import SubscriptionError
 
 __all__ = [
     "Choice",
@@ -12,4 +13,5 @@ __all__ = [
     "UserProgressResponse",
     "SubmitAnswerRequest",
     "SubmitAnswerResponse",
+    "SubscriptionError",
 ]

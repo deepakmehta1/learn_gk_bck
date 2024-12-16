@@ -63,14 +63,7 @@ class SubscriptionService:
                 Subscription.user_id == user_id, Subscription.active == True
             )
         )
-        subscription = result.scalars().first()
-
-        if not subscription:
-            raise HTTPException(
-                status_code=404, detail="No active subscription found for this user"
-            )
-
-        return subscription
+        return result.scalars().first()
 
     async def check_user_subscription_for_book(
         self, user_id: int, book_id: int
@@ -85,15 +78,7 @@ class SubscriptionService:
                 Subscription.active == True,
             )
         )
-        subscription = result.scalars().first()
-
-        if not subscription:
-            raise HTTPException(
-                status_code=404,
-                detail=f"No active subscription found for book with ID {book_id}",
-            )
-
-        return subscription
+        return result.scalars().first()
 
     async def get_all_user_subscriptions(self, user_id: int) -> List[Subscription]:
         """

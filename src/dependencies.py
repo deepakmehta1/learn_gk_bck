@@ -129,7 +129,7 @@ async def check_user_subscription_and_preview(
     )
 
     if not subscription:
-        raise HTTPException(status_code=403, detail="No subscription for this content")
+        return False
 
     # Check if the user has full or specific subscription to the book
     if subscription.subscription_type.code == SubscriptionTypeEnum.FULL_SUBSCRIPTION:

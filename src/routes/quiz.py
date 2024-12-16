@@ -1,6 +1,11 @@
 from typing import List
-from fastapi import APIRouter, Depends
-from src.schemas import Question, SubmitAnswerRequest, SubmitAnswerResponse
+from fastapi import APIRouter, Depends, Response
+from src.schemas import (
+    Question,
+    SubmitAnswerRequest,
+    SubmitAnswerResponse,
+    SubscriptionError,
+)
 from src.services import QuizService, UserProgressService
 from src.dependencies import (
     get_quiz_service,
@@ -14,14 +19,16 @@ router = APIRouter()
 
 
 # GET Question and Choices without the answer
-@router.get("/question/{question_id}", response_model=Question)
+@router.get("/question/{question_id}", response_model=Question | SubscriptionError)
 async def get_question_with_options(
     question_id: int,
     quiz_service: QuizService = Depends(get_quiz_service),
     current_user: User = Depends(get_current_user),
     user_progress_service: UserProgressService = Depends(get_user_progress_service),
-    _: bool = Depends(check_user_subscription_and_preview),
+    has_access: bool = Depends(check_user_subscription_and_preview),
 ):
+    if not has_access:
+        return SubscriptionError
     # Associate the user with the progress service
     user_progress_service.associate_user(current_user)
 
@@ -43,15 +50,20 @@ async def get_question_with_options(
 
 
 # POST Submit Answer and Check Correctness
-@router.post("/question/{question_id}/submit", response_model=SubmitAnswerResponse)
+@router.post(
+    "/question/{question_id}/submit",
+    response_model=SubmitAnswerResponse | SubscriptionError,
+)
 async def submit_answer(
     question_id: int,
     submit_request: SubmitAnswerRequest,
     quiz_service: QuizService = Depends(get_quiz_service),
     current_user: User = Depends(get_current_user),
     user_progress_service: UserProgressService = Depends(get_user_progress_service),
-    _: bool = Depends(check_user_subscription_and_preview),
+    has_access: bool = Depends(check_user_subscription_and_preview),
 ):
+    if not has_access:
+        return SubscriptionError
     # Associate the user with the progress service
     user_progress_service.associate_user(current_user)
 
@@ -77,11 +89,15 @@ async def submit_answer(
 
 
 # GET API: Get questions by subunit_id
-@router.get("/subunit/{subunit_id}/questions", response_model=List[Question])
+@router.get(
+    "/subunit/{subunit_id}/questions", response_model=List[Question] | SubscriptionError
+)
 async def get_questions_by_subunit(
     subunit_id: int,
     quiz_service: QuizService = Depends(get_quiz_service),
     _: User = Depends(get_current_user),
     has_access: bool = Depends(check_user_subscription_and_preview),
 ):
+    if not has_access:
+        return SubscriptionError
     return await quiz_service.get_questions_by_subunit_id(subunit_id)
