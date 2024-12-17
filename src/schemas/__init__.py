@@ -2,7 +2,11 @@ from .choice import Choice
 from .question import Question
 from .user_progress import UserProgressBase, RecentQuestionDetails, UserProgressResponse
 from .requests import SubmitAnswerRequest, CreateSubscriptionRequest
-from .responses import SubmitAnswerResponse, CreateSubscriptionResponse
+from .responses import (
+    SubmitAnswerResponse,
+    CreateSubscriptionResponse,
+    SubscriptionType,
+)
 from .error_responses import SubscriptionError, SubscriptionNotCompletedError
 
 __all__ = [
@@ -17,4 +21,5 @@ __all__ = [
     "CreateSubscriptionResponse",
     "CreateSubscriptionRequest",
     "SubscriptionNotCompletedError",
+    "SubscriptionType",
 ]

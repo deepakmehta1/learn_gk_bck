@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
+from typing import List
 from src.models import User
 from src.services import SubscriptionService
 from src.dependencies import get_current_user, get_subscription_service
 from src.schemas import (
     CreateSubscriptionResponse,
     CreateSubscriptionRequest,
-    SubscriptionError,
     SubscriptionNotCompletedError,
+    SubscriptionType,
 )
 
 router = APIRouter()
@@ -57,3 +58,15 @@ async def mock_payment_service() -> bool:
     """
     # Simulate successful payment
     return True
+
+
+# GET all subscription types
+@router.get("/all", response_model=List[SubscriptionType])
+async def get_all_subscription_types(
+    _: User = Depends(get_current_user),
+    subscription_service: SubscriptionService = Depends(get_subscription_service),
+):
+    """
+    Fetch all subscription types (full and base subscription).
+    """
+    return await subscription_service.get_all_subscription_types()

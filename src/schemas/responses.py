@@ -9,3 +9,10 @@ class SubmitAnswerResponse(BaseModel):
 
 class CreateSubscriptionResponse(BaseModel):
     message: str
+
+
+class SubscriptionType(BaseModel):
+    id: int
+    code: str
+    name: str
+    cost: int

@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from fastapi import HTTPException
-from src.schemas import SubscriptionNotCompletedError
+from src.schemas import SubscriptionNotCompletedError, SubscriptionType
 from datetime import datetime, timedelta
 from src.models import Subscription, User, SubscriptionType
 from src.enums import SubscriptionTypeEnum
@@ -118,3 +118,23 @@ class SubscriptionService:
             )
 
         return subscriptions
+
+    async def get_all_subscription_types(self) -> List[SubscriptionType]:
+        """
+        Fetch all subscription types (full_subscription, base_subscription).
+        """
+        result = await self.db.execute(select(SubscriptionType))
+        subscription_types = result.scalars().all()
+
+        if not subscription_types:
+            raise HTTPException(status_code=404, detail="No subscription types found")
+
+        return [
+            SubscriptionType(
+                id=sub_type.id,
+                code=sub_type.code,
+                name=sub_type.name,
+                cost=sub_type.cost,
+            )
+            for sub_type in subscription_types
+        ]
