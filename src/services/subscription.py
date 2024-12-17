@@ -135,6 +135,7 @@ class SubscriptionService:
                 code=sub_type.code,
                 name=sub_type.name,
                 cost=sub_type.cost,
+                description=sub_type.description,
             )
             for sub_type in subscription_types
         ]

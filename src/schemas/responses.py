@@ -16,3 +16,4 @@ class SubscriptionType(BaseModel):
     code: str
     name: str
     cost: int
+    description: str
