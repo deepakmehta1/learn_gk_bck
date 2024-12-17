@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from fastapi import HTTPException
 from src.models.user import (
     User,
-)  # Assuming the User model is defined in src/models/user.py
+)
 
 
 class UserService:

@@ -15,6 +15,7 @@ class SubscriptionType(Base):
         nullable=False,
         default=SubscriptionTypeEnum.FULL_SUBSCRIPTION,
     )
+    description = Column(String, nullable=True)
     cost = Column(Integer)
 
     subscriptions = relationship("Subscription", back_populates="subscription_type")

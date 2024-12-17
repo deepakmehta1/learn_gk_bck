@@ -17,29 +17,29 @@ from src.firebase import firebase_admin
 from typing import Optional
 
 
-def get_subscription_service(db: AsyncSession = Depends(get_db)) -> BookService:
+async def get_subscription_service(db: AsyncSession = Depends(get_db)) -> BookService:
     return SubscriptionService(db)
 
 
-def get_book_service(db: AsyncSession = Depends(get_db)) -> BookService:
+async def get_book_service(db: AsyncSession = Depends(get_db)) -> BookService:
     return BookService(db)
 
 
-def get_quiz_service(db: AsyncSession = Depends(get_db)) -> QuizService:
+async def get_quiz_service(db: AsyncSession = Depends(get_db)) -> QuizService:
     return QuizService(db)
 
 
-def get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:
+async def get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:
     return UserService(db)
 
 
-def get_user_progress_service(
+async def get_user_progress_service(
     db: AsyncSession = Depends(get_db),
 ) -> UserProgressService:
     return UserProgressService(db)
 
 
-def get_user_email_from_token(authorization: Optional[str] = Header(None)) -> str:
+async def get_user_email_from_token(authorization: Optional[str] = Header(None)) -> str:
     """
     Dependency function to extract the Bearer token from the header, verify it via Firebase,
     and return the respective user's email.
