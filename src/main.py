@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.db.database import engine, Base
 from src.middlewares import LoggingMiddleware
 from contextlib import asynccontextmanager
-from src.routes import quiz, book, user
+from src.routes import quiz, book, user, subscription
 
 
 @asynccontextmanager
@@ -27,8 +27,9 @@ app.add_middleware(
 app.add_middleware(LoggingMiddleware)
 
 app.include_router(quiz.router, prefix="/quiz", tags=["quiz"])
-app.include_router(book.router, prefix="/books", tags=["quiz"])
-app.include_router(user.router, prefix="/user", tags=["quiz"])
+app.include_router(book.router, prefix="/books", tags=["books"])
+app.include_router(user.router, prefix="/user", tags=["user"])
+app.include_router(subscription.router, prefix="/subscription", tags=["subscription"])
 
 
 # Healthcheck API endpoint
