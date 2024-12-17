@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 
 class SubmitAnswerResponse(BaseModel):
@@ -17,3 +18,19 @@ class SubscriptionType(BaseModel):
     name: str
     cost: int
     description: str
+
+
+class BookDetails(BaseModel):
+    id: int
+    title_en: str
+    title_hi: str
+
+
+class ActiveSubscription(BaseModel):
+    user_id: int
+    subscription_id: int
+    subscription_type: str
+    book: BookDetails | None
+    start_date: datetime
+    end_date: datetime
+    active: bool

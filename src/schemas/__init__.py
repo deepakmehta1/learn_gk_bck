@@ -6,6 +6,7 @@ from .responses import (
     SubmitAnswerResponse,
     CreateSubscriptionResponse,
     SubscriptionType,
+    ActiveSubscription,
 )
 from .error_responses import SubscriptionError, SubscriptionNotCompletedError
 
@@ -22,4 +23,5 @@ __all__ = [
     "CreateSubscriptionRequest",
     "SubscriptionNotCompletedError",
     "SubscriptionType",
+    "ActiveSubscription",
 ]

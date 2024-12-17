@@ -5,7 +5,7 @@ from src.schemas import SubscriptionNotCompletedError, SubscriptionType
 from datetime import datetime, timedelta
 from src.models import Subscription, User, SubscriptionType
 from src.enums import SubscriptionTypeEnum
-from typing import List, Optional
+from typing import List
 
 
 class SubscriptionService:
@@ -16,8 +16,8 @@ class SubscriptionService:
         self,
         user_id: int,
         subscription_type: SubscriptionTypeEnum,
-        book_id: Optional[int],
-    ) -> Subscription:
+        book_id: int | None,
+    ) -> Subscription | None:
         """
         Create a new subscription for a user. It can be for a specific book (base subscription)
         or for all books (full subscription). It checks if a user already has an active subscription.
@@ -77,7 +77,7 @@ class SubscriptionService:
 
         return new_subscription
 
-    async def check_user_subscription(self, user_id: int) -> Optional[Subscription]:
+    async def check_user_subscription(self, user_id: int) -> Subscription | None:
         """
         Check if the user has any active subscription.
         """
@@ -90,7 +90,7 @@ class SubscriptionService:
 
     async def check_user_subscription_for_book(
         self, user_id: int, book_id: int
-    ) -> Optional[Subscription]:
+    ) -> Subscription | None:
         """
         Check if the user has an active subscription for a specific book.
         """
@@ -139,3 +139,19 @@ class SubscriptionService:
             )
             for sub_type in subscription_types
         ]
+
+    async def get_active_subscription(self, user_id: int) -> Subscription | None:
+        """
+        Get the active subscription for a specific user.
+        """
+        result = await self.db.execute(
+            select(Subscription).filter(
+                Subscription.user_id == user_id, Subscription.active == True
+            )
+        )
+        active_subscription = result.scalars().first()
+
+        if not active_subscription:
+            raise HTTPException(status_code=404, detail="No active subscription found")
+
+        return active_subscription
