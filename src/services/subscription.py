@@ -77,13 +77,23 @@ class SubscriptionService:
 
         return new_subscription
 
-    async def check_user_subscription(self, user_id: int) -> Subscription | None:
+    async def check_user_has_a_full_subscription(
+        self, user_id: int
+    ) -> Subscription | None:
         """
         Check if the user has any active subscription.
         """
+        subscription_types = await self.db.execute(
+            select(SubscriptionType).filter(
+                SubscriptionType.code == SubscriptionTypeEnum.FULL_SUBSCRIPTION.value
+            )
+        )
+        subscription_type = subscription_types.scalars().first()
         result = await self.db.execute(
             select(Subscription).filter(
-                Subscription.user_id == user_id, Subscription.active == True
+                Subscription.user_id == user_id,
+                Subscription.subscription_type == subscription_type,
+                Subscription.active == True,
             )
         )
         return result.scalars().first()
