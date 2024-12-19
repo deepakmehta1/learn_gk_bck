@@ -14,8 +14,36 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[BookBase])
-async def get_books(book_service: BookService = Depends(get_book_service)):
-    return await book_service.get_all_books()
+async def get_books(
+    book_service: BookService = Depends(get_book_service),
+    current_service: UserService = Depends(get_current_user),
+    subscription_service: SubscriptionService = Depends(get_subscription_service),
+):
+    books = await book_service.get_all_books()
+    books = TypeAdapter(List[BookBase]).validate_python(books)
+    for book in books:
+        full_subscription = (
+            await subscription_service.check_user_has_a_full_subscription(
+                current_service.id
+            )
+        )
+
+        if full_subscription:
+            for unit in book.units:
+                for subunit in unit.subunits:
+                    subunit.is_preview = True
+        else:
+            book_subscription = (
+                await subscription_service.check_user_subscription_for_book(
+                    current_service.id, book.id
+                )
+            )
+            if book_subscription:
+                for unit in book.units:
+                    for subunit in unit.subunits:
+                        subunit.is_preview = True
+
+    return books
 
 
 @router.get("/book/{book_id}", response_model=BookBase)
