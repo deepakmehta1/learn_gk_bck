@@ -123,24 +123,16 @@ async def check_user_subscription_and_preview(
     if subunit.preview:
         return True  # Subunit is previewed, no need for subscription check
 
+    # Check if the user has full subscription
+    subscription = await subscription_service.check_user_has_a_full_subscription(
+        user_id=current_user.id
+    )
+    if subscription:
+        return True
+
     # Check if the user has a subscription
     subscription = await subscription_service.check_user_subscription_for_book(
         user_id=current_user.id, book_id=subunit.unit.book_id
     )
 
-    if not subscription:
-        return False
-
-    # Check if the user has full or specific subscription to the book
-    if subscription.subscription_type.code == SubscriptionTypeEnum.FULL_SUBSCRIPTION:
-        return True
-
-    if (
-        subscription.subscription_type.code == SubscriptionTypeEnum.BASE_SUBSCRIPTION
-        and subscription.book_id == subunit.unit.book_id
-    ):
-        return True
-
-    raise HTTPException(
-        status_code=403, detail="No valid subscription for this content"
-    )
+    return True if subscription else False
