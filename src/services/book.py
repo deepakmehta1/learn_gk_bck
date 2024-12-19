@@ -18,11 +18,10 @@ class BookService:
         Uses `get_book_by_id` to get full details for each book.
         """
         # Fetch all books
-        async with self.db.begin():
-            result = await self.db.execute(
-                select(Book)
-            )  # Fetch books without joining units/subunits
-            books = result.scalars().all()
+        result = await self.db.execute(
+            select(Book)
+        )  # Fetch books without joining units/subunits
+        books = result.scalars().all()
 
         if not books:
             raise HTTPException(status_code=404, detail="No books found")
@@ -41,9 +40,8 @@ class BookService:
         Uses the existing methods to get question counts for each unit and subunit.
         """
         # Fetch the book with its units
-        async with self.db.begin():
-            result = await self.db.execute(select(Book).filter(Book.id == book_id))
-            book = result.scalars().first()
+        result = await self.db.execute(select(Book).filter(Book.id == book_id))
+        book = result.scalars().first()
 
         if not book:
             raise HTTPException(status_code=404, detail="Book not found")
@@ -70,9 +68,8 @@ class BookService:
         """
         Fetches all units for a specific book, along with their subunits and question counts.
         """
-        async with self.db.begin():
-            result = await self.db.execute(select(Unit).filter(Unit.book_id == book_id))
-            units = result.scalars().all()
+        result = await self.db.execute(select(Unit).filter(Unit.book_id == book_id))
+        units = result.scalars().all()
 
         if not units:
             raise HTTPException(status_code=404, detail="No units found for this book")
@@ -95,15 +92,14 @@ class BookService:
         """
         Fetches all subunits for a specific unit, including the count of questions per subunit.
         """
-        async with self.db.begin():
-            result = await self.db.execute(
-                select(SubUnit)
-                .filter(SubUnit.unit_id == unit_id)
-                .join(Question, Question.subunit_id == SubUnit.id, isouter=True)
-                .group_by(SubUnit.id)
-                .add_columns(func.count(Question.id).label("question_count"))
-            )
-            subunits = result.all()
+        result = await self.db.execute(
+            select(SubUnit)
+            .filter(SubUnit.unit_id == unit_id)
+            .join(Question, Question.subunit_id == SubUnit.id, isouter=True)
+            .group_by(SubUnit.id)
+            .add_columns(func.count(Question.id).label("question_count"))
+        )
+        subunits = result.all()
 
         if not subunits:
             raise HTTPException(
@@ -120,3 +116,11 @@ class BookService:
             }
             for subunit, question_count in subunits
         ]
+
+    async def get_book_by_unit_id(self, unit_id: int) -> Book:
+        """
+        Fetches all subunits for a specific unit, including the count of questions per subunit.
+        """
+        result = await self.db.execute(select(Unit).filter(Unit.id == unit_id))
+        unit = result.scalars().first()
+        return unit.book
